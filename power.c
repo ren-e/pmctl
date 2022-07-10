@@ -38,7 +38,7 @@ pwr_battery_soc(int verbose)
 
 		soc = (int)((double)cur/(double)max * 100);
 		if (verbose)
-			printf("Battery SoC: %d%%\n", soc);
+		 	printf("Battery SoC		%d%%\n", soc);
 		break;
 	}
 

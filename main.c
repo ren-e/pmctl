@@ -26,7 +26,7 @@ usage(void)
 	extern char	*__progname;
 
 	fprintf(stderr, "usage:\t%s [-r] [-c charge] [-b socmax] "
-	    "[-d discharge] [-R assertionID]\n",
+	    "[-d discharge]\n",
 	    __progname);
 	exit(1);
 }
@@ -79,8 +79,6 @@ main(int argc, char *argv[])
 	optreset = 1;
 	optind = 1;
 
-	pwr_battery_soc(1);
-
 	if ((argc > 0) || (opt.read == 0 && opt.batteryMax == 0 &&
 	    opt.batteryCharging == 0xff && opt.inflowDisable == 0))
 		usage();
@@ -95,6 +93,7 @@ main(int argc, char *argv[])
 		assert_inflow_disable(opt.inflowDisable);
 
 	if (opt.read) {
+		pwr_battery_soc(1);
 		smc_read(smcBatteryMax);
 		smc_read(smcBatteryCharging);
 	}
