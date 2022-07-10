@@ -1,4 +1,6 @@
 # macOS pmctl
+> :warning: **Only Intel systems supported at this moment**
+
 This application allows you to manipulate private power management settings
  from the command line interface.
 
