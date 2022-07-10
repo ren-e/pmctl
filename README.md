@@ -16,7 +16,9 @@ make
 ```
 
 ### Synopsis
+```
 pmctl [-b socmax] [-b charge] [-d discharge] [-r]
+```
 
 ### Description
 The pmcctl utility manipulates private power management settings, such as
@@ -25,10 +27,12 @@ The pmcctl utility manipulates private power management settings, such as
  result in undefined behavior when using different systems.
 
 The options are as follows:
+```
 	[-b socmax]	Configure the battery SoC maximum value.
 	[-c charge]	Allows to charge the battery (1: enable, 0: disable).
 	[-d discharge]	Discharge the battery until %.
 	[-r]		Read current or applied power management settings.
+```
 
 
 ### Caveats
