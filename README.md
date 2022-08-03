@@ -1,8 +1,8 @@
 # macOS pmctl
-> :warning: **Only Intel systems supported at this moment**
 
 This application allows you to manipulate private power management settings
- from the command line interface.
+ from the command line interface. Both Intel and Apple Silicon systems are
+ supported.
 
 ### Requirements
   - macOS >= 12.0
@@ -32,7 +32,8 @@ The options are as follows:
 ```
 	[-b socmax]	Configure the battery SoC maximum value.
 	[-c charge]	Allows to charge the battery (1: enable, 0: disable).
-	[-d discharge]	Discharge the battery until %.
+	[-d discharge]	Discharge the battery until % at Intel systems,
+			 and (1: enable, 0: disable) for Apple silicon.
 	[-r]		Read current or applied power management settings.
 ```
 
@@ -40,5 +41,6 @@ The options are as follows:
 ### Caveats
 The parameters `-b` and `-c` require root, other parameters can be run as the
  regular user.
-When using the `-d` parameter the application will wait until the discharge
- threshold has reached. Press CTRL+C to cancel the discharge.
+When using the `-d` parameter on Intel systems the application will wait until
+ the discharge threshold has reached. Press CTRL+C to cancel the discharge.
+The parameter `-b` is only supported on Intel systems.
