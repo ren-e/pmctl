@@ -31,6 +31,60 @@ usage(void)
 	exit(1);
 }
 
+static int
+pmctl_intel(struct options *opt)
+{
+	if (opt->inflowDisable < 10)
+		errx(1, "kIOPMInflowDisableAssertion only supports battery"
+		    " level, acceptable range is 10 to 99.");
+
+	if (opt->batteryMax > 0)
+		smc_write(smcBatteryMax, opt->batteryMax);
+
+	if (opt->batteryCharging != 0xff)
+		smc_write(smcBatteryChargingIntel, opt->batteryCharging);
+
+	if (opt->inflowDisable != 0xff)
+		assert_inflow_disable(opt->inflowDisable);
+
+	if (opt->read) {
+		pwr_battery_soc(1);
+		smc_read(smcBatteryMax);
+		smc_read(smcBatteryChargingIntel);
+	}
+
+	return (0);
+}
+
+static int
+pmctl_apple(struct options *opt)
+{
+	if (opt->batteryMax > 0)
+		errx(1, "smcBatteryMax unsupported on Apple Silicon");
+	if (opt->inflowDisable > 1 && opt->inflowDisable != 0xff)
+		errx(1, "smcDisableInflow only supports enable or disable"
+		    ", acceptable range is 0 or 1.");
+
+	if (opt->batteryCharging != 0xff)
+		smc_write(smcBatteryChargingApple,
+		    opt->batteryCharging == 2 ? 1 : 0);
+
+	if (opt->inflowDisable == 1) {
+		smc_write(smcDisableInflow, 0);
+		smc_write(smcDisableInflow, 1);
+	} else if (opt->inflowDisable == 0) {
+		smc_write(smcDisableInflow, 0);
+	}
+
+	if (opt->read) {
+		pwr_battery_soc(1);
+		smc_read(smcBatteryChargingApple);
+		smc_read(smcDisableInflow);
+	}
+
+	return (0);
+}
+
 int
 main(int argc, char *argv[])
 {       
@@ -42,7 +96,7 @@ main(int argc, char *argv[])
 		.read			= 0,
 		.batteryMax		= 0,
 		.batteryCharging	= 0xff,
-		.inflowDisable		= 0,
+		.inflowDisable		= 0xff,
 	};
         
 	while ((ch = getopt(argc, argv, "b:c:d:r")) != -1) {
@@ -61,9 +115,10 @@ main(int argc, char *argv[])
 			opt.batteryCharging = t == 0 ? 2 : 0;
 			break;
 		case 'd':
-			opt.inflowDisable = strtonum(optarg, 10, 99, &errstr);
+			opt.inflowDisable = strtonum(optarg, 0, 99,
+			    &errstr);
 			if (errstr != NULL)
-				errx(1, "kIOPMInflowDisableAssertion is %s: %s",
+				errx(1, "inflowDisable is %s: %s",
 				    errstr, optarg);
 			break;
 		case 'r':
@@ -79,23 +134,20 @@ main(int argc, char *argv[])
 	optreset = 1;
 	optind = 1;
 
+	if ((opt.cputype = get_cpu_arch()) == -1)
+		errx(1, "Unsupported architecture");
+
 	if ((argc > 0) || (opt.read == 0 && opt.batteryMax == 0 &&
-	    opt.batteryCharging == 0xff && opt.inflowDisable == 0))
+	    opt.batteryCharging == 0xff && opt.inflowDisable == 0xff))
 		usage();
 
-	if (opt.batteryMax > 0)
-		smc_write(smcBatteryMax, opt.batteryMax);
-
-	if (opt.batteryCharging != 0xff)
-		smc_write(smcBatteryCharging, opt.batteryCharging);
-
-	if (opt.inflowDisable)
-		assert_inflow_disable(opt.inflowDisable);
-
-	if (opt.read) {
-		pwr_battery_soc(1);
-		smc_read(smcBatteryMax);
-		smc_read(smcBatteryCharging);
+	switch (opt.cputype) {
+	case CPU_TYPE_X86:
+		pmctl_intel(&opt);
+		break;
+	case CPU_TYPE_ARM64:
+		pmctl_apple(&opt);
+		break;
 	}
 
 	return (0);

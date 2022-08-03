@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 René Ammerlaan <pnnv@icloud.com>
+ * Copyright (c) 2022 René Ammerlaan <>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -20,10 +20,10 @@
 #include <IOKit/IOTypes.h>
 #include "private.h"
 
-#define CSTR2INT(s)	(uint32_t)(s[0] << 24 | s[1] << 16 | s[2] << 8 | s[3])
-
-#define smcBatteryMax		CSTR2INT("BCLM")
-#define smcBatteryCharging	CSTR2INT("CH0B")
+#define smcBatteryMax			'BCLM'
+#define smcBatteryChargingIntel		'CH0B'
+#define smcBatteryChargingApple		'CH0C'
+#define smcDisableInflow		'CH0I'
 
 struct options
 {       
@@ -31,6 +31,7 @@ struct options
         uint8_t		batteryMax;
         uint8_t		batteryCharging;
         uint8_t		inflowDisable;
+	cpu_type_t	cputype;
 };
 
 /* smc.c */
@@ -44,3 +45,6 @@ int			assert_inflow_disable(uint8_t);
 
 /* power.c */
 int			pwr_battery_soc(int);
+
+/* util.c */
+cpu_type_t		get_cpu_arch();
