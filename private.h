@@ -67,7 +67,7 @@ typedef struct SMCPLimitData
 /* Do not modify - defined by AppleSMC.kext */
 typedef struct SMCKeyInfoData 
 {
-	IOByteCount	dataSize;
+	IOByteCount32	dataSize;
 	uint32_t	dataType;
 	uint8_t		dataAttributes;
 } SMCKeyInfoData;

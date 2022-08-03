@@ -33,8 +33,10 @@ smc_key_info(uint32_t key, SMCParamStruct *src, SMCParamStruct *dst)
 	if (r != kSMCSuccess)
 		errx(1, "Caught exception in read call");
 
-	if (dst->result == kSMCKeyNotFound)
-		errx(2, "Cannot find Key");
+	if (dst->result == kSMCKeyNotFound) {
+		fprintf(stderr, "Cannot find key\n");
+		return (-1);
+	}
 	else if (dst->result != kSMCSuccess)
 		errx(1, "Internal error");
 
@@ -73,7 +75,7 @@ smc_read(uint32_t key) {
 
 	bzero(&smc, sizeof(SMCParamStruct) * 2);
 	if (smc_key_info(key, &smc[0], &smc[1]) != 0)
-		errx(1, "Cannot retrieve SMC key info");
+		return (-1);
 
 	smc[0].key		= key;
 	smc[0].data8		= kSMCReadKey;
@@ -89,9 +91,14 @@ smc_read(uint32_t key) {
 			printf("smcBatteryMax		%d%%\n",
 			    smc[1].bytes[0]);
 			break;
-		case smcBatteryCharging:
+		case smcBatteryChargingApple:
+		case smcBatteryChargingIntel:
 			printf("smcBatteryCharging	%s\n",
 			    smc[1].bytes[0] == 0 ? "enabled" : "disabled");
+			break;
+		case smcDisableInflow:
+			printf("smcDisableInflow	%s\n",
+			    smc[1].bytes[0] == 0 ? "disabled" : "enabled");
 			break;
 		default:
 			printf("Unknown key type\n");
