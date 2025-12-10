@@ -22,8 +22,14 @@
 
 #define smcBatteryMax			'BCLM'
 #define smcBatteryChargingIntel		'CH0B'
-#define smcBatteryChargingApple		'CH0C'
-#define smcDisableInflow		'CH0I'
+#define smcBatteryChargingAppleLegacy	'CH0C'
+#define smcDisableInflowLegacy		'CH0I'
+#define smcBatteryChargingApple		'CHTE'
+#define smcDisableInflow		'CHIE'
+
+#define smcDisableInflowValueLegacy	1
+#define smcDisableInflowValueLatest	8
+
 
 struct options
 {       
@@ -34,6 +40,13 @@ struct options
 	cpu_type_t	cputype;
 };
 
+struct osversion
+{
+	int	majorVersion;
+	int	minorVersion;
+	int	patchVersion;
+};
+
 /* smc.c */
 int		smc_write(uint32_t, uint8_t);
 int		smc_read(uint32_t);
@@ -42,6 +55,9 @@ IOReturn	callSMCFunction(int, SMCParamStruct *, SMCParamStruct *);
 /* assert.c */
 IOPMAssertionID		assert_create(CFStringRef, const char *);
 int			assert_inflow_disable(uint8_t);
+
+/* os.m */
+struct osversion	get_os_version();
 
 /* power.c */
 int			pwr_battery_soc(int);

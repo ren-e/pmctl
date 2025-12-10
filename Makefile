@@ -1,6 +1,6 @@
 CC     = clang
 PROG   = pmctl
-OBJS   = main.o smc.o assert.o power.o util.o
+OBJS   = main.o smc.o assert.o power.o util.o os.o
 CFLAGS = -mtune=native -O2 -Wall -I.
 FFLAGS = -framework Foundation -framework IOKit
 

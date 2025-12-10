@@ -59,6 +59,22 @@ pmctl_intel(struct options *opt)
 static int
 pmctl_apple(struct options *opt)
 {
+	int		legacy = 0;
+	uint32_t	smc_inflow_key, smc_charging_key;
+
+	struct osversion os = get_os_version();
+
+	if (os.majorVersion < 15 || (os.majorVersion == 15 && os.minorVersion < 7))
+		legacy = 1;
+
+	if (legacy) {
+		smc_inflow_key = smcDisableInflowLegacy;
+		smc_charging_key = smcBatteryChargingAppleLegacy;
+	} else {
+		smc_inflow_key = smcDisableInflow;
+		smc_charging_key = smcBatteryChargingApple;
+	}
+
 	if (opt->batteryMax > 0)
 		errx(1, "smcBatteryMax unsupported on Apple Silicon");
 	if (opt->inflowDisable > 1 && opt->inflowDisable != 0xff)
@@ -66,20 +82,20 @@ pmctl_apple(struct options *opt)
 		    ", acceptable range is 0 or 1.");
 
 	if (opt->batteryCharging != 0xff)
-		smc_write(smcBatteryChargingApple,
+		smc_write(smc_charging_key,
 		    opt->batteryCharging == 2 ? 1 : 0);
 
 	if (opt->inflowDisable == 1) {
-		smc_write(smcDisableInflow, 0);
-		smc_write(smcDisableInflow, 1);
+		smc_write(smc_inflow_key, 0);
+		smc_write(smc_inflow_key, legacy ? smcDisableInflowValueLegacy : smcDisableInflowValueLatest);
 	} else if (opt->inflowDisable == 0) {
-		smc_write(smcDisableInflow, 0);
+		smc_write(smc_inflow_key, 0);
 	}
 
 	if (opt->read) {
 		pwr_battery_soc(1);
-		smc_read(smcBatteryChargingApple);
-		smc_read(smcDisableInflow);
+		smc_read(smc_charging_key);
+		smc_read(smc_inflow_key);
 	}
 
 	return (0);
