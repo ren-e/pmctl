@@ -92,11 +92,13 @@ smc_read(uint32_t key) {
 			    smc[1].bytes[0]);
 			break;
 		case smcBatteryChargingApple:
+		case smcBatteryChargingAppleLegacy:
 		case smcBatteryChargingIntel:
 			printf("smcBatteryCharging	%s\n",
 			    smc[1].bytes[0] == 0 ? "enabled" : "disabled");
 			break;
 		case smcDisableInflow:
+		case smcDisableInflowLegacy:
 			printf("smcDisableInflow	%s\n",
 			    smc[1].bytes[0] == 0 ? "disabled" : "enabled");
 			break;
